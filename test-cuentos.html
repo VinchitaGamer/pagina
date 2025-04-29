@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Cuentos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .cuento {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .titulo {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #3498db;
+        }
+        .keywords {
+            color: #7f8c8d;
+            font-style: italic;
+            margin: 5px 0;
+        }
+        .contenido {
+            margin-top: 10px;
+            white-space: pre-wrap;
+        }
+        .busqueda {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+        input, button {
+            padding: 8px;
+            margin: 5px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #resultado {
+            margin-top: 20px;
+            padding: 10px;
+            border-left: 3px solid #3498db;
+        }
+    </style>
+</head>
+<body>
+    <h1>Prueba de Cuentos</h1>
+    
+    <div class="busqueda">
+        <h2>Buscar Cuento</h2>
+        <input type="text" id="palabraClave" placeholder="Palabra clave (ej: magia, tiempo, recuerdos)">
+        <button onclick="buscarCuento()">Buscar</button>
+        <div id="resultado"></div>
+    </div>
+    
+    <h2>Todos los Cuentos Disponibles</h2>
+    <div id="cuentos-container"></div>
+    
+    <script type="module">
+        import { cuentos } from './src/js/data/cuentos.js';
+        
+        // Mostrar información de los cuentos cargados
+        console.log('Cuentos cargados:', cuentos.length);
+        
+        const container = document.getElementById('cuentos-container');
+        
+        // Mostrar todos los cuentos
+        cuentos.forEach(cuento => {
+            const cuentoDiv = document.createElement('div');
+            cuentoDiv.className = 'cuento';
+            
+            const titulo = document.createElement('div');
+            titulo.className = 'titulo';
+            titulo.textContent = cuento.titulo;
+            
+            const keywords = document.createElement('div');
+            keywords.className = 'keywords';
+            keywords.textContent = 'Palabras clave: ' + cuento.keywords.join(', ');
+            
+            const contenido = document.createElement('div');
+            contenido.className = 'contenido';
+            contenido.textContent = cuento.contenido.substring(0, 200) + '...';
+            
+            cuentoDiv.appendChild(titulo);
+            cuentoDiv.appendChild(keywords);
+            cuentoDiv.appendChild(contenido);
+            
+            container.appendChild(cuentoDiv);
+        });
+        
+        // Hacer la función de búsqueda disponible globalmente
+        window.buscarCuentoPorPalabra = function(palabraClave) {
+            palabraClave = palabraClave.toLowerCase().trim();
+            
+            console.log('Buscando cuento con palabra clave:', palabraClave);
+            
+            // Buscar en todos los cuentos
+            const cuentosEncontrados = cuentos.filter(cuento => {
+                // Buscar en keywords
+                if (cuento.keywords.some(keyword => keyword.toLowerCase().includes(palabraClave))) {
+                    console.log('Encontrado en keywords:', cuento.titulo);
+                    return true;
+                }
+                // Buscar en título
+                if (cuento.titulo.toLowerCase().includes(palabraClave)) {
+                    console.log('Encontrado en título:', cuento.titulo);
+                    return true;
+                }
+                // Buscar en contenido
+                if (cuento.contenido.toLowerCase().includes(palabraClave)) {
+                    console.log('Encontrado en contenido:', cuento.titulo);
+                    return true;
+                }
+                return false;
+            });
+            
+            console.log('Cuentos encontrados:', cuentosEncontrados.length);
+            
+            if (cuentosEncontrados.length > 0) {
+                const cuentoSeleccionado = cuentosEncontrados[Math.floor(Math.random() * cuentosEncontrados.length)];
+                console.log('Cuento seleccionado:', cuentoSeleccionado.titulo);
+                return cuentoSeleccionado;
+            }
+            
+            console.log('No se encontraron cuentos');
+            return null;
+        };
+        
+        window.buscarCuento = function() {
+            const palabraClave = document.getElementById('palabraClave').value;
+            const resultado = document.getElementById('resultado');
+            
+            if (!palabraClave) {
+                resultado.innerHTML = '<p>Por favor, ingresa una palabra clave.</p>';
+                return;
+            }
+            
+            const cuento = window.buscarCuentoPorPalabra(palabraClave);
+            
+            if (cuento) {
+                resultado.innerHTML = `
+                    <p><strong>Cuento encontrado:</strong> ${cuento.titulo}</p>
+                    <p><strong>Palabras clave:</strong> ${cuento.keywords.join(', ')}</p>
+                    <p><strong>Extracto:</strong> ${cuento.contenido.substring(0, 200)}...</p>
+                `;
+            } else {
+                resultado.innerHTML = '<p>No se encontró ningún cuento con esa palabra clave.</p>';
+            }
+        };
+    </script>
+</body>
+</html>
